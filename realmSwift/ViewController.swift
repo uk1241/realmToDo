@@ -72,12 +72,8 @@ extension ViewController
     
     @objc private func deleteButtonTapped(_ sender: UIButton)
     {
-        let selectedIndex = sender.tag
-        if let delteItem = items?[selectedIndex]
-        {
-            deletDataFromRealm(deleteItem: delteItem)
-            todoTableView.reloadData()
-        }
+//        let selectedIndex = sender.tag+1
+        deleteDataFromRealm(at: sender.tag)
         
     }
     private func getDataFromRealm()
@@ -85,12 +81,21 @@ extension ViewController
         items = realm.objects(TodoItem.self)
         todoTableView.reloadData()
     }
-    private func deletDataFromRealm(deleteItem:TodoItem)
+    private func deleteDataFromRealm(at index: Int)
     {
-        try! realm.write
-        {
-            realm.delete(deleteItem)
+        let items = realm.objects(TodoItem.self)
+        
+        // Adjust the index by adding 1 to account for Realm's 1-based indexing assumption
+        let adjustedIndex = index + 1
+        
+        // Ensure the adjusted index is within the bounds of the items
+        if adjustedIndex < items.count {
+            let deleteItem = items[adjustedIndex] // Retrieve the item at the adjusted index
+            try! realm.write {
+                realm.delete(deleteItem) // Delete the item from Realm
+            }
         }
+        todoTableView.reloadData()
     }
     
     
